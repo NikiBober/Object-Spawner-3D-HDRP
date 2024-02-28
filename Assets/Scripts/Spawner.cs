@@ -4,22 +4,30 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    [Tooltip("Color for spawn area, can be selected for each spawner independently")]
+    [Tooltip("Color for spawn area, can be selected for each spawner independently.")]
     [SerializeField] private Color _drawColor = Color.white;
-    [Tooltip("Size of spawn area, only fitted items will be spawned")]
+    [Tooltip("Size of spawn area, only fitted items will be spawned.")]
     [SerializeField] private Vector3 _spawnAreaSize = Vector3.one;
-    [Tooltip("Delay before next spawn, after item is picked up")]
+    [Tooltip("Delay before next spawn, after item is picked up.")]
     [SerializeField] private float _spawnCooldown = 1f;
 
+    [Tooltip("Layer with which to detect collisions.")]
+    [SerializeField] private LayerMask _collisionLayer;
+
     private List<GameObject> _loots = new();
+    private System.Random _random = new();
     private Bounds _spawnBounds;
     private GameObject _currentItem;
+    private Vector3 _spawnAreaCenter;
 
     // sorting and deactivating items
     private void Start()
     {
-        _spawnBounds = new(transform.position + (Vector3.up * _spawnAreaSize.y / 2f), _spawnAreaSize);
+        // offset so that the spawner's position is the bottom point of the spawn area (to match the spawn objects)
+        _spawnAreaCenter = transform.position + (Vector3.up * _spawnAreaSize.y / 2f);
+        _spawnBounds = new(_spawnAreaCenter, _spawnAreaSize);
 
+        // this check can be avoid if on spawner will be only correct items
         FindFittingLoots();
 
         foreach (Transform child in transform)
@@ -27,7 +35,15 @@ public class Spawner : MonoBehaviour
             child.gameObject.SetActive(false);
         }
 
-        SpawnRandomLoot();
+        // this check can be avoid if spawner will be positioned correctly
+        if (IsCollidersInSpawnArea())
+        {
+            Debug.Log($"Adjust {gameObject.name} position. There are colliders of the specified LayerMask in the spawn area.");
+        }
+        else
+        {
+            SpawnRandomLoot();
+        }
     }
 
     // this is for call from outside to pick up current item and spawn next
@@ -69,7 +85,8 @@ public class Spawner : MonoBehaviour
     {
         if (_loots.Count > 0)
         {
-            int randomIndex = Random.Range(0, _loots.Count);
+            // System.Random used instead of Random.Range for even better performance
+            int randomIndex = _random.Next(_loots.Count);
             _currentItem = _loots[randomIndex];
             _currentItem.SetActive(true);
         }
@@ -80,5 +97,13 @@ public class Spawner : MonoBehaviour
     {
         Gizmos.color = _drawColor;
         Gizmos.DrawCube(transform.position + (Vector3.up * _spawnAreaSize.y / 2f), _spawnAreaSize);
+        // _spawnAreaCenter can`t be used here
+    }
+
+    // check, is there are colliders of the specified LayerMask in the spawn area
+    private bool IsCollidersInSpawnArea()
+    {
+        Collider[] colliders = Physics.OverlapBox(_spawnAreaCenter, _spawnAreaSize / 2f, Quaternion.identity, _collisionLayer);
+        return colliders.Length > 0;
     }
 }

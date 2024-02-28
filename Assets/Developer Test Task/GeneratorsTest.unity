@@ -32615,6 +32615,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spawner
       objectReference: {fileID: 0}
+    - target: {fileID: 7643570912635804192, guid: 5c80bf0b2ff243643b567f66ede37d60,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8584084394546722008, guid: 5c80bf0b2ff243643b567f66ede37d60,
         type: 3}
       propertyPath: _drawColor.a
@@ -32654,6 +32659,11 @@ PrefabInstance:
         type: 3}
       propertyPath: _spawnAreaSize.y
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8584084394546722008, guid: 5c80bf0b2ff243643b567f66ede37d60,
+        type: 3}
+      propertyPath: _collisionLayer.m_Bits
+      value: 4294967295
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
